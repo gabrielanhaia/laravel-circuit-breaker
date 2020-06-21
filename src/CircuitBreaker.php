@@ -35,8 +35,9 @@ class CircuitBreaker
 
         $defaultSettings = [
             'exceptions_on' => true,
+            'time_window' => 20,
             'time_out_open' => 30,
-            'time_out_half_open' => 20
+            'time_out_half_open' => 20,
         ];
 
         $this->settings = array_merge($defaultSettings, $settings);
@@ -68,12 +69,11 @@ class CircuitBreaker
     /**
      * Reports a service failure.
      *
-     * @param string $serviceName
-     * @param int $numberOfFailures
+     * @param string $serviceName Service name to add a new failure.
      */
-    public function failed(string $serviceName, int $numberOfFailures = 1): void
+    public function failed(string $serviceName): void
     {
-        $this->circuitBreaker->addFailure($serviceName, $numberOfFailures);
+        $this->circuitBreaker->addFailure($serviceName, $this->settings['time_window']);
 
         $totalFailures = $this->circuitBreaker->getTotalFailures($serviceName);
         $circuitState = $this->circuitBreaker->getState($serviceName);

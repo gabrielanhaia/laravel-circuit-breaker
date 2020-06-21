@@ -26,9 +26,9 @@ abstract class CircuitBreakerAdapter
      * Increment a failure in the total of failures for a service.
      *
      * @param string $serviceName Service name to increment a failure.
-     * @param int $numberOfFailures Number total of failures to be incremented (default 1).
+     * @param int $timeWindow Time for each error be stored.
      */
-    public abstract function addFailure(string $serviceName, int $numberOfFailures = 1): void;
+    public abstract function addFailure(string $serviceName, int $timeWindow): void;
 
     /**
      * Get the total of failures for a specific service.

@@ -68,15 +68,14 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      * Increment a failure in the total of failures for a service.
      *
      * @param string $serviceName Service name to increment a failure.
-     * @param int $numberOfFailures Number total of failures to be incremented (default 1).
+     * @param int $timeWindow Time for each error be stored.
      */
-    public function addFailure(string $serviceName, int $numberOfFailures = 1): void
+    public function addFailure(string $serviceName, int $timeWindow): void
     {
         $failuresByServiceKey = $this->key($serviceName, 'total_failures');
+        $failuresByServiceKey = $failuresByServiceKey . ':' . time();
 
-        for ($x = 1; $x <= $numberOfFailures; $x++) {
-            $this->redis->incr($failuresByServiceKey);
-        }
+        $this->redis->put($failuresByServiceKey);
     }
 
     /**
@@ -88,7 +87,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function getTotalFailures(string $serviceName): int
     {
-        $failuresByServiceKey = $this->key($serviceName, 'total_failures');
+        $failuresByServiceKey = $this->key($serviceName, 'total_failures') . ":*";
 
         return (int) $this->redis->get($failuresByServiceKey);
     }
@@ -117,7 +116,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     {
         $openCircuitKey = $this->key($serviceName, CircuitState::OPEN);
         $halfOpenCircuitKey = $this->key($serviceName, CircuitState::HALF_OPEN);
-        $failuresByServiceKey = $this->key($serviceName, 'total_failures');
+        $failuresByServiceKey = $this->key($serviceName, 'total_failures') . ":*";
 
         $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
     }
