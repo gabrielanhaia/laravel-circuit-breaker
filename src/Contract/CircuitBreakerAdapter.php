@@ -55,4 +55,13 @@ abstract class CircuitBreakerAdapter
      * @return mixed
      */
     public abstract function closeCircuit(string $serviceName): void;
+
+    /**
+     * Define the circuit as half-open.
+     *
+     * @param string $serviceName Service name
+     * @param int $timeOpen Time that the circuit will be half-open.
+     */
+    public abstract function setCircuitHalfOpen(string $serviceName, int $timeOpen): void;
+
 }
