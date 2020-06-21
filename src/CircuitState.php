@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace GabrielAnhaia\LaravelCircuitBreaker;
 
@@ -19,11 +18,11 @@ use Eloquent\Enumeration\AbstractEnumeration;
 class CircuitState extends AbstractEnumeration
 {
     /** @var string OPEN Define that the circuit is open. */
-    const OPEN = 'OPEN';
+    const OPEN = 'open';
 
     /** @var string CLOSED Define that the circuit is clsoed. */
-    const CLOSED = 'CLOSED';
+    const CLOSED = 'close';
 
     /** @var string HALF_OPEN Define that the circuit is half-open. */
-    const HALF_OPEN = 'HALF_OPEN';
+    const HALF_OPEN = 'half_open';
 }
