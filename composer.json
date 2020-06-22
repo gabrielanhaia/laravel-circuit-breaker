@@ -1,6 +1,6 @@
 {
     "name": "gabrielanhaia/php-circuit-breaker",
-    "description": "Circuit breaker for microservices developed for PHP projects.",
+    "description": "Circuit breaker for microservices developed in PHP.",
     "type": "library",
     "require": {
         "laravel/laravel": "^7.12",
