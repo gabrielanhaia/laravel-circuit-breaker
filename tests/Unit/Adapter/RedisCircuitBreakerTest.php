@@ -14,5 +14,8 @@ use Tests\TestCase;
  */
 class RedisCircuitBreakerTest extends TestCase
 {
-
+    public function testLalala()
+    {
+        $this->assertTrue(true);
+    }
 }

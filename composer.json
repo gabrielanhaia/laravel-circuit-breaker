@@ -15,5 +15,10 @@
             "name": "Gabriel Anhaia",
             "email": "anhaia.gabriel@gmail.com"
         }
-    ]
+    ],
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    }
 }

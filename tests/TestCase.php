@@ -3,8 +3,6 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-
 /**
  * Class TestCase
  *
@@ -12,7 +10,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */
-class TestCase extends BaseTestCase
+class TestCase extends \PHPUnit\Framework\TestCase
 {
     /**
      * Creates the application.
