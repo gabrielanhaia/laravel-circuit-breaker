@@ -4,7 +4,8 @@
     "type": "library",
     "require": {
         "laravel/laravel": "^7.12",
-        "ext-redis": "*"
+        "ext-redis": "*",
+        "mockery/mockery": "^1.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.2"
@@ -16,6 +17,11 @@
             "email": "anhaia.gabriel@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "GabrielAnhaia\\LaravelCircuitBreaker\\": "src"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests"
