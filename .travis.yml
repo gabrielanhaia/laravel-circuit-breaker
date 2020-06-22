@@ -1,0 +1,14 @@
+language: php
+php:
+  - 7.3
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.composer/cache
+
+before_script:
+  - composer self-update
+  - composer install --prefer-source --no-interaction --dev
+
+script: phpunit
