@@ -3,6 +3,7 @@
 
 namespace Tests\Unit\Adapter;
 
+use GabrielAnhaia\LaravelCircuitBreaker\Adapter\RedisCircuitBreaker;
 use Tests\TestCase;
 
 /**
@@ -14,8 +15,19 @@ use Tests\TestCase;
  */
 class RedisCircuitBreakerTest extends TestCase
 {
-    public function testLalala()
+    /**
+     * Test generating a key to be used on Redis.
+     */
+    public function testGeneratingKey()
     {
-        $this->assertTrue(true);
+        $serviceName = 'SERVICE_NAME';
+        $keyIdentifier = 'KEY_IDENTIFIER';
+        $expectedResult = "circuit_breaker:{$serviceName}:{$keyIdentifier}";
+
+        $redisMock = \Mockery::mock(\Redis::class);
+        $redisCircuitBreaker = new RedisCircuitBreaker($redisMock);
+        $result = $this->invokeMethod($redisCircuitBreaker, 'key', [$serviceName, $keyIdentifier]);
+
+        $this->assertEquals($expectedResult, $result);
     }
 }
