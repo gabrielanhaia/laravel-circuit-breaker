@@ -3,9 +3,9 @@
     "description": "Circuit breaker for microservices developed in PHP.",
     "type": "library",
     "require": {
-        "laravel/laravel": "^7.12",
         "ext-redis": "*",
-        "mockery/mockery": "^1.4"
+        "mockery/mockery": "^1.4",
+        "eloquent/enumeration": "^6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.2"
@@ -19,12 +19,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "GabrielAnhaia\\LaravelCircuitBreaker\\": "src"
+            "GabrielAnhaia\\LaravelCircuitBreaker\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests"
+            "Tests\\": "tests/"
         }
     }
 }
