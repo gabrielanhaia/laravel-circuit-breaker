@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Adapter;
+namespace GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis;
 
 use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
 use GabrielAnhaia\LaravelCircuitBreaker\Contract\CircuitBreakerAdapter;
@@ -18,27 +18,19 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     /** @var \Redis $redis Redis client. */
     private $redis;
 
+    /** @var KeyHelper $keyHelper Helper to use with keys. */
+    private $keyHelper;
+
     /**
      * RedisCircuitBreaker constructor.
      *
      * @param \Redis $redis
+     * @param KeyHelper|null $keyHelper
      */
-    public function __construct(\Redis $redis)
+    public function __construct(\Redis $redis, KeyHelper $keyHelper = null)
     {
         $this->redis = $redis;
-    }
-
-    /**
-     * Method responsible for generating a key for Redis.
-     *
-     * @param string $serviceName Service name to be used in the key.
-     * @param string $identifier Identifier of the key/state.
-     *
-     * @return string
-     */
-    private function key(string $serviceName, string $identifier): string
-    {
-        return "circuit_breaker:{$serviceName}:{$identifier}";
+        $this->keyHelper = $keyHelper ? $keyHelper : new KeyHelper;
     }
 
     /**
@@ -52,8 +44,8 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     {
         $circuitState = CircuitState::CLOSED();
 
-        $halfOpenCircuitKey = $this->key($serviceName, CircuitState::HALF_OPEN);
-        $openCircuitKey = $this->key($serviceName, CircuitState::OPEN);
+        $halfOpenCircuitKey = $this->keyHelper->generateKeyHalfOpen($serviceName);
+        $openCircuitKey = $this->keyHelper->generateKeyOpen($serviceName);
 
         if (!empty($this->redis->get($halfOpenCircuitKey))) {
             $circuitState = CircuitState::HALF_OPEN();
@@ -72,10 +64,9 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function addFailure(string $serviceName, int $timeWindow): void
     {
-        $failuresByServiceKey = $this->key($serviceName, 'total_failures');
-        $failuresByServiceKey = $failuresByServiceKey . ':' . time();
+        $keyTotalFailures = $this->keyHelper->generateKeyTotalFailuresToStore($serviceName);
 
-        $this->redis->put($failuresByServiceKey);
+        $this->redis->set($keyTotalFailures, $timeWindow);
     }
 
     /**
@@ -87,9 +78,9 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function getTotalFailures(string $serviceName): int
     {
-        $failuresByServiceKey = $this->key($serviceName, 'total_failures') . ":*";
+        $key = $this->keyHelper->generateKeyTotalFailuresToSearch($serviceName);
 
-        return (int) $this->redis->get($failuresByServiceKey);
+        return (int) $this->redis->get($key);
     }
 
     /**
@@ -100,7 +91,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function openCircuit(string $serviceName, int $timeOpen): void
     {
-        $key = $this->key($serviceName, CircuitState::OPEN);
+        $key = $this->keyHelper->generateKeyOpen($serviceName);
 
         $this->redis->set($key, $timeOpen);
     }
@@ -114,9 +105,9 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function closeCircuit(string $serviceName): void
     {
-        $openCircuitKey = $this->key($serviceName, CircuitState::OPEN);
-        $halfOpenCircuitKey = $this->key($serviceName, CircuitState::HALF_OPEN);
-        $failuresByServiceKey = $this->key($serviceName, 'total_failures') . ":*";
+        $openCircuitKey = $this->keyHelper->generateKeyOpen($serviceName);
+        $halfOpenCircuitKey = $this->keyHelper->generateKeyHalfOpen($serviceName);
+        $failuresByServiceKey = $this->keyHelper->generateKeyTotalFailuresToSearch($serviceName);
 
         $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
     }
@@ -129,7 +120,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function setCircuitHalfOpen(string $serviceName, int $timeOpen): void
     {
-        $key = $this->key($serviceName, CircuitState::HALF_OPEN);
+        $key = $this->keyHelper->generateKeyHalfOpen($serviceName);;
 
         $this->redis->set($key, $timeOpen);
     }
