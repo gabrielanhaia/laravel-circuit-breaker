@@ -375,17 +375,17 @@ class RedisCircuitBreakerTest extends TestCase
     {
         return [
             [
-                'expectedResult' => CircuitState::OPEN,
+                'expectedResult' => CircuitState::OPEN(),
                 'isOpen' => true,
                 'isHalfOpen' => false,
             ],
             [
-                'expectedResult' => CircuitState::HALF_OPEN,
+                'expectedResult' => CircuitState::HALF_OPEN(),
                 'isOpen' => false,
                 'isHalfOpen' => true,
             ],
             [
-                'expectedResult' => CircuitState::CLOSED,
+                'expectedResult' => CircuitState::CLOSED(),
                 'isOpen' => false,
                 'isHalfOpen' => false,
             ]
