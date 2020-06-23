@@ -1,13 +1,13 @@
 <?php
 
-namespace GabrielAnhaia\LaravelCircuitBreaker;
+namespace GabrielAnhaia\PhpCircuitBreaker;
 
 use Eloquent\Enumeration\AbstractEnumeration;
 
 /**
  * Class CircuitState
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker
+ * @package GabrielAnhaia\PhpCircuitBreaker
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  *

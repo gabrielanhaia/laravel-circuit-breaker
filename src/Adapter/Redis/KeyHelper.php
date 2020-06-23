@@ -1,12 +1,12 @@
 <?php
 
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis;
+namespace GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis;
 
 /**
  * Class KeyHelper responsible to deal with redis keys.
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis
+ * @package GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis
  *
  * @author Gabriel Anhaia <anhaia.gabrie@gmail.com>>
  */

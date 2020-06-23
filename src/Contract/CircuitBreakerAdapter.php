@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Contract;
+namespace GabrielAnhaia\PhpCircuitBreaker\Contract;
 
-use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
+use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
 
 /**
  * Class CircuitBreakerAdapter
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker\Contract
+ * @package GabrielAnhaia\PhpCircuitBreaker\Contract
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */

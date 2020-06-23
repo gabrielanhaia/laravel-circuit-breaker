@@ -1,14 +1,14 @@
 <?php
 
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Exception;
+namespace GabrielAnhaia\PhpCircuitBreaker\Exception;
 
 use Throwable;
 
 /**
  * Class AdapterException
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker\Exception
+ * @package GabrielAnhaia\PhpCircuitBreaker\Exception
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */

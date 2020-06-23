@@ -1,15 +1,15 @@
 <?php
 
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Exception;
+namespace GabrielAnhaia\PhpCircuitBreaker\Exception;
 
-use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
+use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
 use Throwable;
 
 /**
  * Class CircuitException
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker\Exception
+ * @package GabrielAnhaia\PhpCircuitBreaker\Exception
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */

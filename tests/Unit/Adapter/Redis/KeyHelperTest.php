@@ -3,7 +3,7 @@
 
 namespace Tests\Unit\Adapter\Redis;
 
-use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\KeyHelper;
+use GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis\KeyHelper;
 use Tests\TestCase;
 
 /**

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Adapter\Redis;
 
-use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\KeyHelper;
-use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\RedisCircuitBreaker;
-use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
-use GabrielAnhaia\LaravelCircuitBreaker\Exception\AdapterException;
+use GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis\KeyHelper;
+use GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis\RedisCircuitBreaker;
+use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
+use GabrielAnhaia\PhpCircuitBreaker\Exception\AdapterException;
 use Tests\TestCase;
 
 /**

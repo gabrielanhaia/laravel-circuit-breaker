@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace GabrielAnhaia\LaravelCircuitBreaker;
+namespace GabrielAnhaia\PhpCircuitBreaker;
 
-use GabrielAnhaia\LaravelCircuitBreaker\Contract\CircuitBreakerAdapter;
-use GabrielAnhaia\LaravelCircuitBreaker\Exception\CircuitException;
+use GabrielAnhaia\PhpCircuitBreaker\Contract\CircuitBreakerAdapter;
+use GabrielAnhaia\PhpCircuitBreaker\Exception\CircuitException;
 
 /**
  * Class CircuitBreaker
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker
+ * @package GabrielAnhaia\PhpCircuitBreaker
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */

@@ -1,16 +1,16 @@
 <?php
 
 
-namespace GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis;
+namespace GabrielAnhaia\PhpCircuitBreaker\Adapter\Redis;
 
-use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
-use GabrielAnhaia\LaravelCircuitBreaker\Contract\CircuitBreakerAdapter;
-use GabrielAnhaia\LaravelCircuitBreaker\Exception\AdapterException;
+use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
+use GabrielAnhaia\PhpCircuitBreaker\Contract\CircuitBreakerAdapter;
+use GabrielAnhaia\PhpCircuitBreaker\Exception\AdapterException;
 
 /**
  * Class RedisCircuitBreaker
  *
- * @package GabrielAnhaia\LaravelCircuitBreaker\Adapter
+ * @package GabrielAnhaia\PhpCircuitBreaker\Adapter
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */
