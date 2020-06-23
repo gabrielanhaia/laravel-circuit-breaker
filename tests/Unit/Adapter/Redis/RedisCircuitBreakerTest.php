@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Adapter;
+namespace Tests\Unit\Adapter\Redis;
 
 use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\KeyHelper;
 use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\RedisCircuitBreaker;
