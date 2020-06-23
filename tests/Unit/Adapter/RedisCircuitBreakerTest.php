@@ -338,8 +338,6 @@ class RedisCircuitBreakerTest extends TestCase
         $keyOpen = 'KEY_OPEN';
         $keyHalfOpen = 'KEY_HALF_OPEN';
 
-        $expectedResultState = CircuitState::OPEN();
-
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
         $keyHelperMock->shouldReceive('generateKeyOpen')
             ->once()
@@ -365,7 +363,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisCircuitBreaker = new RedisCircuitBreaker($redisMock, $keyHelperMock);
         $stateResult = $redisCircuitBreaker->getState($serviceName);
 
-        $this->assertEquals($expectedResultState, $stateResult);
+        $this->assertEquals($expectedCircuitState, $stateResult);
     }
 
     /**
