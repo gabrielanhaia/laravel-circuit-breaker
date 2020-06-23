@@ -61,12 +61,14 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      *
      * @param string $serviceName Service name to increment a failure.
      * @param int $timeWindow Time for each error be stored.
+     *
+     * @return bool
      */
-    public function addFailure(string $serviceName, int $timeWindow): void
+    public function addFailure(string $serviceName, int $timeWindow): bool
     {
         $keyTotalFailures = $this->keyHelper->generateKeyTotalFailuresToStore($serviceName);
 
-        $this->redis->set($keyTotalFailures, $timeWindow);
+        return $this->redis->set($keyTotalFailures, $timeWindow);
     }
 
     /**
@@ -88,12 +90,14 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      *
      * @param string $serviceName Service name of the circuit to be opened.
      * @param int $timeOpen Time in second that the circuit will stay open.
+     *
+     * @return bool
      */
-    public function openCircuit(string $serviceName, int $timeOpen): void
+    public function openCircuit(string $serviceName, int $timeOpen): bool
     {
         $key = $this->keyHelper->generateKeyOpen($serviceName);
 
-        $this->redis->set($key, $timeOpen);
+        return $this->redis->set($key, $timeOpen);
     }
 
     /**
@@ -101,15 +105,15 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      *
      * @param string $serviceName
      *
-     * @return mixed
+     * @return bool
      */
-    public function closeCircuit(string $serviceName): void
+    public function closeCircuit(string $serviceName): bool
     {
         $openCircuitKey = $this->keyHelper->generateKeyOpen($serviceName);
         $halfOpenCircuitKey = $this->keyHelper->generateKeyHalfOpen($serviceName);
         $failuresByServiceKey = $this->keyHelper->generateKeyTotalFailuresToSearch($serviceName);
 
-        $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
+        return $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
     }
 
     /**
@@ -117,11 +121,13 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      *
      * @param string $serviceName Service name
      * @param int $timeOpen Time that the circuit will be half-open.
+     *
+     * @return bool
      */
-    public function setCircuitHalfOpen(string $serviceName, int $timeOpen): void
+    public function setCircuitHalfOpen(string $serviceName, int $timeOpen): bool
     {
         $key = $this->keyHelper->generateKeyHalfOpen($serviceName);;
 
-        $this->redis->set($key, $timeOpen);
+        return $this->redis->set($key, $timeOpen);
     }
 }

@@ -27,8 +27,10 @@ abstract class CircuitBreakerAdapter
      *
      * @param string $serviceName Service name to increment a failure.
      * @param int $timeWindow Time for each error be stored.
+     *
+     * @return bool
      */
-    public abstract function addFailure(string $serviceName, int $timeWindow): void;
+    public abstract function addFailure(string $serviceName, int $timeWindow): bool;
 
     /**
      * Get the total of failures for a specific service.
@@ -44,24 +46,28 @@ abstract class CircuitBreakerAdapter
      *
      * @param string $serviceName Service name of the circuit to be opened.
      * @param int $timeOpen Time in second that the circuit will stay open.
+     *
+     * @return bool
      */
-    public abstract function openCircuit(string $serviceName, int $timeOpen): void;
+    public abstract function openCircuit(string $serviceName, int $timeOpen): bool;
 
     /**
      * Define a succeed request for this service and close the circuit.
      *
      * @param string $serviceName
      *
-     * @return mixed
+     * @return bool
      */
-    public abstract function closeCircuit(string $serviceName): void;
+    public abstract function closeCircuit(string $serviceName): bool;
 
     /**
      * Define the circuit as half-open.
      *
      * @param string $serviceName Service name
      * @param int $timeOpen Time that the circuit will be half-open.
+     *
+     * @return bool
      */
-    public abstract function setCircuitHalfOpen(string $serviceName, int $timeOpen): void;
+    public abstract function setCircuitHalfOpen(string $serviceName, int $timeOpen): bool;
 
 }
