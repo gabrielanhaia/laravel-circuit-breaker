@@ -5,13 +5,12 @@ namespace GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis;
 
 use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
 use GabrielAnhaia\LaravelCircuitBreaker\Contract\CircuitBreakerAdapter;
+use GabrielAnhaia\LaravelCircuitBreaker\Exception\AdapterException;
 
 /**
  * Class RedisCircuitBreaker
  *
  * @package GabrielAnhaia\LaravelCircuitBreaker\Adapter
- *
- * TODO: Create custom exceptions for the Adapter layer.
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
  */
@@ -64,7 +63,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      * @param string $serviceName Service name to increment a failure.
      * @param int $timeWindow Time for each error be stored.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function addFailure(string $serviceName, int $timeWindow): void
     {
@@ -73,7 +72,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
         $dataInserted = $this->redis->set($keyTotalFailures, $timeWindow);
 
         if ($dataInserted === false) {
-            throw new \Exception($this->redis->getLastError());
+            throw new AdapterException($this->redis->getLastError());
         }
     }
 
@@ -99,7 +98,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      * @param string $serviceName Service name of the circuit to be opened.
      * @param int $timeOpen Time in second that the circuit will stay open.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function openCircuit(string $serviceName, int $timeOpen): void
     {
@@ -108,7 +107,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
         $dataInserted = $this->redis->set($key, $timeOpen);
 
         if ($dataInserted === false) {
-            throw new \Exception($this->redis->getLastError());
+            throw new AdapterException($this->redis->getLastError());
         }
     }
 
@@ -117,7 +116,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      *
      * @param string $serviceName
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function closeCircuit(string $serviceName): void
     {
@@ -128,7 +127,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
         $dataDeleted = $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
 
         if ($dataDeleted === false) {
-            throw new \Exception($this->redis->getLastError());
+            throw new AdapterException($this->redis->getLastError());
         }
     }
 
@@ -138,7 +137,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      * @param string $serviceName Service name
      * @param int $timeOpen Time that the circuit will be half-open.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function setCircuitHalfOpen(string $serviceName, int $timeOpen): void
     {
@@ -147,7 +146,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
         $dataInserted = $this->redis->set($key, $timeOpen);
 
         if ($dataInserted === false) {
-            throw new \Exception($this->redis->getLastError());
+            throw new AdapterException($this->redis->getLastError());
         }
     }
 }

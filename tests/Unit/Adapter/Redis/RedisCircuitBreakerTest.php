@@ -5,6 +5,7 @@ namespace Tests\Unit\Adapter\Redis;
 use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\KeyHelper;
 use GabrielAnhaia\LaravelCircuitBreaker\Adapter\Redis\RedisCircuitBreaker;
 use GabrielAnhaia\LaravelCircuitBreaker\CircuitState;
+use GabrielAnhaia\LaravelCircuitBreaker\Exception\AdapterException;
 use Tests\TestCase;
 
 /**
@@ -51,7 +52,7 @@ class RedisCircuitBreakerTest extends TestCase
         $keyFailure = 'circuit_breaker:service:total_failures:11111';
         $redisErrorMessage = 'UNEXPECTED_ERROR_MESSAGE';
 
-        $this->expectException(\Exception::class);
+        $this->expectException(AdapterException::class);
         $this->expectExceptionMessage($redisErrorMessage);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
@@ -78,7 +79,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test success when opening the circuit.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testSuccessOpeningCircuit()
     {
@@ -105,7 +106,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test a Redis error when trying to open the circuit.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testRedisErrorOpeningCircuit()
     {
@@ -114,7 +115,7 @@ class RedisCircuitBreakerTest extends TestCase
         $keyCircuitOpen = 'circuit_breaker:service:open';
         $redisErrorMessage = 'UNEXPECTED_ERROR_MESSAGE';
 
-        $this->expectException(\Exception::class);
+        $this->expectException(AdapterException::class);
         $this->expectExceptionMessage($redisErrorMessage);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
@@ -141,7 +142,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test success when setting the circuit as half-open.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testSuccessHalfOpenCircuit()
     {
@@ -168,7 +169,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test a Redis error when trying to set the circuit as half-open.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testRedisErrorHalfOpenCircuit()
     {
@@ -177,7 +178,7 @@ class RedisCircuitBreakerTest extends TestCase
         $keyCircuitHalfOpen = 'circuit_breaker:service:half_open';
         $redisErrorMessage = 'UNEXPECTED_ERROR_MESSAGE';
 
-        $this->expectException(\Exception::class);
+        $this->expectException(AdapterException::class);
         $this->expectExceptionMessage($redisErrorMessage);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
@@ -204,7 +205,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test success closing the circuit.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testSuccessClosingCircuit()
     {
@@ -242,7 +243,7 @@ class RedisCircuitBreakerTest extends TestCase
     /**
      * Test a Redis error when trying to close the circuit.
      *
-     * @throws \Exception
+     * @throws AdapterException
      */
     public function testRedisErrorClosingCircuit()
     {
@@ -253,7 +254,7 @@ class RedisCircuitBreakerTest extends TestCase
 
         $redisErrorMessage = 'UNEXPECTED_ERROR_MESSAGE';
 
-        $this->expectException(\Exception::class);
+        $this->expectException(AdapterException::class);
         $this->expectExceptionMessage($redisErrorMessage);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
