@@ -36,4 +36,12 @@ class CircuitException extends \Exception
         parent::__construct($message, $code, $previous);
         $this->serviceName = $serviceName;
     }
+
+    /**
+     * @return string
+     */
+    public function getServiceName(): string
+    {
+        return $this->serviceName;
+    }
 }
