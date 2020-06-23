@@ -28,16 +28,17 @@ class CircuitBreaker
      */
     public function __construct(
         CircuitBreakerAdapter $circuitBreaker,
-        array $settings
+        array $settings = []
     )
     {
         $this->circuitBreaker = $circuitBreaker;
 
         $defaultSettings = [
-            'exceptions_on' => true,
+            'exceptions_on' => false,
             'time_window' => 20,
             'time_out_open' => 30,
             'time_out_half_open' => 20,
+            'total_failures' => 5
         ];
 
         $this->settings = array_merge($defaultSettings, $settings);
