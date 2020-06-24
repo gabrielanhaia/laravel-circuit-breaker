@@ -35,7 +35,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyFailure, $timeWindow)
+            ->with($keyFailure, true, $timeWindow)
             ->andReturnTrue();
 
         $redisCircuitBreaker = new RedisCircuitBreaker($redisMock, $keyHelperMock);
@@ -64,7 +64,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyFailure, $timeWindow)
+            ->with($keyFailure, true, $timeWindow)
             ->andReturnFalse();
 
         $redisMock->shouldReceive('getLastError')
@@ -96,7 +96,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyCircuitOpen, $timeOpen)
+            ->with($keyCircuitOpen, true, $timeOpen)
             ->andReturnTrue();
 
         $redisCircuitBreaker = new RedisCircuitBreaker($redisMock, $keyHelperMock);
@@ -127,7 +127,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyCircuitOpen, $timeOpen)
+            ->with($keyCircuitOpen, true, $timeOpen)
             ->andReturnFalse();
 
         $redisMock->shouldReceive('getLastError')
@@ -159,7 +159,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyHalfOpen, $timeOpen)
+            ->with($keyHalfOpen, true, $timeOpen)
             ->andReturnTrue();
 
         $redisCircuitBreaker = new RedisCircuitBreaker($redisMock, $keyHelperMock);
@@ -190,7 +190,7 @@ class RedisCircuitBreakerTest extends TestCase
         $redisMock = \Mockery::mock(\Redis::class);
         $redisMock->shouldReceive('set')
             ->once()
-            ->with($keyCircuitHalfOpen, $timeOpen)
+            ->with($keyCircuitHalfOpen, true, $timeOpen)
             ->andReturnFalse();
 
         $redisMock->shouldReceive('getLastError')
@@ -212,7 +212,10 @@ class RedisCircuitBreakerTest extends TestCase
         $serviceName = 'SERVICE_NAME';
         $keyOpen = 'KEY_OPEN';
         $keyHalfOpen = 'KEY_HALF_OPEN';
+
         $keyTotalFailures = 'KEY_TOTAL_FAILURES';
+        $keysFailuresToBeDeleted = ['K1', 'K2', 'K3'];
+        $mergeKeysToDelete = array_merge([$keyOpen, $keyHalfOpen], $keysFailuresToBeDeleted);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
         $keyHelperMock->shouldReceive('generateKeyOpen')
@@ -231,10 +234,18 @@ class RedisCircuitBreakerTest extends TestCase
             ->andReturn($keyTotalFailures);
 
         $redisMock = \Mockery::mock(\Redis::class);
-        $redisMock->shouldReceive('delete')
+        $redisMock->shouldReceive('keys')
             ->once()
-            ->with($keyOpen, $keyHalfOpen, $keyTotalFailures)
+            ->with($keyTotalFailures)
+            ->andReturn($keysFailuresToBeDeleted);
+
+        $redisMock->shouldReceive('del')
+            ->once()
+            ->with($mergeKeysToDelete)
             ->andReturnTrue();
+
+        $redisMock->shouldReceive('getLastError')
+            ->never();
 
         $redisCircuitBreaker = new RedisCircuitBreaker($redisMock, $keyHelperMock);
         $this->assertNull($redisCircuitBreaker->closeCircuit($serviceName));
@@ -247,15 +258,18 @@ class RedisCircuitBreakerTest extends TestCase
      */
     public function testRedisErrorClosingCircuit()
     {
-        $serviceName = 'SERVICE_NAME';
-        $keyOpen = 'KEY_OPEN';
-        $keyHalfOpen = 'KEY_HALF_OPEN';
-        $keyTotalFailures = 'KEY_TOTAL_FAILURES';
-
         $redisErrorMessage = 'UNEXPECTED_ERROR_MESSAGE';
 
         $this->expectException(AdapterException::class);
         $this->expectExceptionMessage($redisErrorMessage);
+
+        $serviceName = 'SERVICE_NAME';
+        $keyOpen = 'KEY_OPEN';
+        $keyHalfOpen = 'KEY_HALF_OPEN';
+
+        $keyTotalFailures = 'KEY_TOTAL_FAILURES';
+        $keysFailuresToBeDeleted = ['K1', 'K2', 'K3'];
+        $mergeKeysToDelete = array_merge([$keyOpen, $keyHalfOpen], $keysFailuresToBeDeleted);
 
         $keyHelperMock = \Mockery::mock(KeyHelper::class);
         $keyHelperMock->shouldReceive('generateKeyOpen')
@@ -274,9 +288,14 @@ class RedisCircuitBreakerTest extends TestCase
             ->andReturn($keyTotalFailures);
 
         $redisMock = \Mockery::mock(\Redis::class);
-        $redisMock->shouldReceive('delete')
+        $redisMock->shouldReceive('keys')
             ->once()
-            ->with($keyOpen, $keyHalfOpen, $keyTotalFailures)
+            ->with($keyTotalFailures)
+            ->andReturn($keysFailuresToBeDeleted);
+
+        $redisMock->shouldReceive('del')
+            ->once()
+            ->with($mergeKeysToDelete)
             ->andReturnFalse();
 
         $redisMock->shouldReceive('getLastError')

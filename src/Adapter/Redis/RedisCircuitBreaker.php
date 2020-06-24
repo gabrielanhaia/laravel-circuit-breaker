@@ -48,10 +48,10 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
         $halfOpenCircuitKey = $this->keyHelper->generateKeyHalfOpen($serviceName);
         $openCircuitKey = $this->keyHelper->generateKeyOpen($serviceName);
 
-        if (!empty($this->redis->get($halfOpenCircuitKey))) {
-            $circuitState = CircuitState::HALF_OPEN();
-        } else if (!empty($this->redis->get($openCircuitKey))) {
+        if (!empty($this->redis->get($openCircuitKey))) {
             $circuitState = CircuitState::OPEN();
+        } else if (!empty($this->redis->get($halfOpenCircuitKey))) {
+            $circuitState = CircuitState::HALF_OPEN();
         }
 
         return $circuitState;
@@ -69,7 +69,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     {
         $keyTotalFailures = $this->keyHelper->generateKeyTotalFailuresToStore($serviceName);
 
-        $dataInserted = $this->redis->set($keyTotalFailures, $timeWindow);
+        $dataInserted = $this->redis->set($keyTotalFailures, true, $timeWindow);
 
         if ($dataInserted === false) {
             throw new AdapterException($this->redis->getLastError());
@@ -89,7 +89,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
 
         $totalKeys = sizeof($this->redis->keys($key));
 
-        return  $totalKeys;
+        return $totalKeys;
     }
 
     /**
@@ -104,7 +104,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     {
         $key = $this->keyHelper->generateKeyOpen($serviceName);
 
-        $dataInserted = $this->redis->set($key, $timeOpen);
+        $dataInserted = $this->redis->set($key, true, $timeOpen);
 
         if ($dataInserted === false) {
             throw new AdapterException($this->redis->getLastError());
@@ -120,11 +120,16 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
      */
     public function closeCircuit(string $serviceName): void
     {
-        $openCircuitKey = $this->keyHelper->generateKeyOpen($serviceName);
-        $halfOpenCircuitKey = $this->keyHelper->generateKeyHalfOpen($serviceName);
-        $failuresByServiceKey = $this->keyHelper->generateKeyTotalFailuresToSearch($serviceName);
+        $keysToDelete = [
+            $this->keyHelper->generateKeyOpen($serviceName),
+            $this->keyHelper->generateKeyHalfOpen($serviceName)
+        ];
 
-        $dataDeleted = $this->redis->delete($openCircuitKey, $halfOpenCircuitKey, $failuresByServiceKey);
+        $failuresByServiceKey = $this->keyHelper->generateKeyTotalFailuresToSearch($serviceName);
+        $keysTotalFailures = $this->redis->keys($failuresByServiceKey) ?? [];
+
+        $keysToDelete = array_merge($keysToDelete, $keysTotalFailures);
+        $dataDeleted = $this->redis->del($keysToDelete);
 
         if ($dataDeleted === false) {
             throw new AdapterException($this->redis->getLastError());
@@ -143,7 +148,7 @@ class RedisCircuitBreaker extends CircuitBreakerAdapter
     {
         $key = $this->keyHelper->generateKeyHalfOpen($serviceName);;
 
-        $dataInserted = $this->redis->set($key, $timeOpen);
+        $dataInserted = $this->redis->set($key, true, $timeOpen);
 
         if ($dataInserted === false) {
             throw new AdapterException($this->redis->getLastError());

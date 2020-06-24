@@ -19,11 +19,13 @@ $redis->connect('localhost');
 $redisCircuitBreaker = new RedisCircuitBreaker($redis);
 $circuitBreaker = new CircuitBreaker($redisCircuitBreaker, $settings);
 
-$serviceName = 'MICROSERVICE_NAME';
+$serviceName = 'MICROSERVICE_NAME22';
 
 if ($circuitBreaker->canPass($serviceName) !== true) {
     return;
 }
+
+echo "HERE\n";
 
 // First attempt example (success).
 try {
@@ -37,3 +39,4 @@ try {
     print_r('FAIL');
     return;
 }
+
