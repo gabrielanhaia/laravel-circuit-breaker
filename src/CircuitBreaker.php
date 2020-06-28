@@ -2,6 +2,7 @@
 
 namespace GabrielAnhaia\PhpCircuitBreaker;
 
+use GabrielAnhaia\PhpCircuitBreaker\Contract\Alert;
 use GabrielAnhaia\PhpCircuitBreaker\Contract\CircuitBreakerAdapter;
 use GabrielAnhaia\PhpCircuitBreaker\Exception\CircuitException;
 
@@ -20,18 +21,24 @@ class CircuitBreaker
     /** @var array $settings Circuit Breaker settings. */
     private $settings;
 
+    /** @var Alert $alert Responsible for calling triggers an action when the circuit is opened. */
+    protected $alert;
+
     /**
      * CircuitBreaker constructor.
      *
      * @param CircuitBreakerAdapter $circuitBreaker
-     * @param array $settings
+     * @param array $settings Custom settings.
+     * @param Alert|null $alert Responsible for calling triggers an action when the circuit is opened.
      */
     public function __construct(
         CircuitBreakerAdapter $circuitBreaker,
-        array $settings = []
+        array $settings = [],
+        Alert $alert = null
     )
     {
         $this->circuitBreaker = $circuitBreaker;
+        $this->alert = $alert;
 
         $defaultSettings = [
             'exceptions_on' => false,
@@ -40,6 +47,7 @@ class CircuitBreaker
             'time_out_half_open' => 20,
             'total_failures' => 5
         ];
+
 
         $this->settings = array_merge($defaultSettings, $settings);
     }
@@ -87,6 +95,10 @@ class CircuitBreaker
 
             $this->circuitBreaker->openCircuit($serviceName, $timeOutOpen);
             $this->circuitBreaker->setCircuitHalfOpen($serviceName, ($timeOutOpen + $timeOutHalfOpen));
+
+            if ($this->alert !== null) {
+                $this->alert->emmitOpenCircuit($serviceName);
+            }
         }
     }
 

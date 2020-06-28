@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use GabrielAnhaia\PhpCircuitBreaker\CircuitBreaker;
 use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
+use GabrielAnhaia\PhpCircuitBreaker\Contract\Alert;
 use GabrielAnhaia\PhpCircuitBreaker\Contract\CircuitBreakerAdapter;
 use GabrielAnhaia\PhpCircuitBreaker\Exception\CircuitException;
 use Mockery\Mock;
@@ -213,6 +214,50 @@ class CircuitBreakerTest extends \Tests\TestCase
             ->with($serviceName, $defaultSettingTimeOutOpen + $defaultSettingTimeOutHalfOpen);
 
         $circuitBreaker = new CircuitBreaker($circuitBreakerAdapterMock, ['time_window' => $timeWindow]);
+        $this->assertNull($circuitBreaker->failed($serviceName));
+    }
+
+    /**
+     * Test when increasing the total of failures for a service AND the circuit is closed, however
+     * the total of failures reaches its limit and there is an {@see Alert} object to emmit a message.
+     */
+    public function testServiceFailureWhenTheCircuitIsClosedButTheNumberOfFailuresIsHigherThanTheLimitAndEmmitAMessage()
+    {
+        $serviceName = 'SERVICE_NAME_TEST';
+        $timeWindow = 123;
+
+        $circuitBreakerAdapterMock = \Mockery::mock(CircuitBreakerAdapter::class);
+        $circuitBreakerAdapterMock->shouldReceive('addFailure')
+            ->once()
+            ->with($serviceName, $timeWindow);
+
+        $circuitBreakerAdapterMock->shouldReceive('getState')
+            ->once()
+            ->with($serviceName)
+            ->andReturn(CircuitState::CLOSED());
+
+        $circuitBreakerAdapterMock->shouldReceive('getTotalFailures')
+            ->once()
+            ->with($serviceName)
+            ->andReturn(6);
+
+        $defaultSettingTimeOutOpen = 30;
+        $defaultSettingTimeOutHalfOpen = 20;
+
+        $circuitBreakerAdapterMock->shouldReceive('openCircuit')
+            ->once()
+            ->with($serviceName, $defaultSettingTimeOutOpen);
+
+        $circuitBreakerAdapterMock->shouldReceive('setCircuitHalfOpen')
+            ->once()
+            ->with($serviceName, $defaultSettingTimeOutOpen + $defaultSettingTimeOutHalfOpen);
+
+        $alertWrapper = \Mockery::mock(Alert::class);
+        $alertWrapper->shouldReceive('emmitOpenCircuit')
+            ->once()
+            ->with($serviceName);
+
+        $circuitBreaker = new CircuitBreaker($circuitBreakerAdapterMock, ['time_window' => $timeWindow], $alertWrapper);
         $this->assertNull($circuitBreaker->failed($serviceName));
     }
 }
