@@ -21,4 +21,11 @@
             "GabrielAnhaia\\LaravelCircuitBreaker\\": "src/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GabrielAnhaia\\LaravelCircuitBreaker\\CircuitBreakerServiceProvider"
+            ]
+        }
+    }
 }
