@@ -24,9 +24,6 @@ class CircuitBreakerServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/config/circuit_breaker.php', 'circuit_breaker'
         );
-        $this->mergeConfigFrom(
-            __DIR__.'/config/contact.php','contact'
-        );
 
         $this->app->bind(CircuitBreakerAdapter::class, RedisCircuitBreaker::class);
 
