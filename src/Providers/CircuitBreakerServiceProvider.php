@@ -17,6 +17,16 @@ use Illuminate\Support\ServiceProvider;
 class CircuitBreakerServiceProvider extends ServiceProvider
 {
     /**
+     * Boot method.
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../../config/circuit_breaker.php' => config_path('circuit_breaker.php'),
+        ]);
+    }
+
+    /**
      * Register method.
      */
     public function register()
@@ -24,10 +34,6 @@ class CircuitBreakerServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../../config/circuit_breaker.php', 'circuit_breaker'
         );
-
-        $this->publishes([
-            __DIR__ . '/../../config/circuit_breaker.php' => config_path('circuit_breaker.php'),
-        ]);
 
         $this->app->bind(CircuitBreakerAdapter::class, RedisCircuitBreaker::class);
 
