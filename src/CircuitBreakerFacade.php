@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class CircuitBreakerFacade
  *
+ * @method static bool canPass(string $serviceName)
+ * @method static void failed(string $serviceName)
+ * @method static void succeed(string $serviceName)
+ *
  * @package GabrielAnhaia\LaravelCircuitBreaker
  *
  * @author Gabriel Anhaia <anhaia.gabriel@gmail.com>
