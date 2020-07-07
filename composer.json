@@ -23,7 +23,10 @@
         "laravel": {
             "providers": [
                 "GabrielAnhaia\\LaravelCircuitBreaker\\Providers\\CircuitBreakerServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "CircuitBreaker": "GabrielAnhaia\\LaravelCircuitBreaker\\CircuitBreakerFacade"
+            }
         }
     },
     "config": {
