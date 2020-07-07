@@ -25,5 +25,10 @@
                 "GabrielAnhaia\\LaravelCircuitBreaker\\Providers\\CircuitBreakerServiceProvider"
             ]
         }
-    }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev"
+
 }
