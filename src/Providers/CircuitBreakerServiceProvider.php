@@ -25,6 +25,10 @@ class CircuitBreakerServiceProvider extends ServiceProvider
             __DIR__ . '../../config/circuit_breaker.php', 'circuit_breaker'
         );
 
+        $this->publishes([
+            __DIR__ . '../../config/circuit_breaker.php' => config_path('circuit_breaker.php'),
+        ]);
+
         $this->app->bind(CircuitBreakerAdapter::class, RedisCircuitBreaker::class);
 
         $this->app->bind(CircuitBreaker::class, function ($app) {
