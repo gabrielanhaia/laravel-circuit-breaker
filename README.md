@@ -5,7 +5,7 @@
 ![Licence](https://img.shields.io/badge/licence-MIT-blue)
 ![Package Stars](https://img.shields.io/badge/stars-%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85-yellow)
 
-![Logo - Laravel Circuit Breaker](logo.png)
+<img src="./logo.png" alt="Logo - Laravel Circuit Breaker"  width="30%" height="30%">
 
 Laravel Circuit Breaker was developed based on the book "Release It!: Design and Deploy Production-Ready Software (Pragmatic Programmers)", written by Michael T. Nygard.
 In this book, Michael popularized the Circuit Breaker.
