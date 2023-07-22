@@ -14,11 +14,11 @@ When we work with microservices, it is sometimes common to call these systems, a
 
 You can find more information about Circuit Breakers [here](https://martinfowler.com/bliki/CircuitBreaker.html).
 
-Note: This package was developed for Laravel, if you are using other Framework, then I suggest you check the following repository: [PHP Circuit Breaker by Gabriel Anhaia](https://github.com/gabrielanhaia/php-circuit-breaker)
+Note: This package was developed for Laravel, if you are using another Framework, then I suggest you check the following repository: [PHP Circuit Breaker by Gabriel Anhaia](https://github.com/gabrielanhaia/php-circuit-breaker)
 
 ## Installation
 
-You can install the package via composer:
+You can install the package via Composer:
 
 ```bash
 composer require gabrielanhaia/laravel-circuit-breaker
@@ -46,7 +46,7 @@ return [
 
 ## Usage
 
-There are two ways of using the CircuitBreaker. You can use the direct the object `GabrielAnhaia\PhpCircuitBreaker\CircuitBreaker`. It can be injected automatically by the DI (dependency injection), it is not necessary to register it.
+There are two ways of using the CircuitBreaker. You can use direct the object `GabrielAnhaia\PhpCircuitBreaker\CircuitBreaker`. It can be injected automatically by the DI (dependency injection); it is not necessary to register it.
 
 The second option is calling the Facade inside your classes using the class `GabrielAnhaia\LaravelCircuitBreaker\CircuitBreakerFacade`.
 
@@ -89,7 +89,7 @@ $settings = [
 ];
 ```
 
-*Note: It is not necessary to define these settings (they are the default values), they will be defined automatically.*
+*Note: It is not necessary to define these settings (they are the default values); they will be defined automatically.*
 
 ## Additional Information
 
@@ -108,22 +108,22 @@ $settings = [
 One of your services is a Payment Gateway, and you try to call it in an interval of each 2 seconds for some reason.
 The first time you call the Gateway, it responds with a 200 (HTTP status code), and after you call the method "succeed" with a service identifier (You can create one for each service).
 
-On the second, third, fourth, fifth, and sixth call, the Gateway is unavailable, so you call the method "failed" again.
+On the second, third, fourth, fifth, and sixth calls, the Gateway is unavailable, so you call the method "failed" again.
 
-The total of failers was 5, now the next time you call the method "canPass" it will return "false" and the service will not be called again.
-At this moment the circuit is open, it will stay "OPEN" for 30 seconds (time_out_open), and then it will change the state to "HALF_OPEN" at this moment you can try to call the service again, and if it fails it will be "OPEN" for more 30 seconds.
+The total number of failers was 5, now The next time you call the method "canPass" it will return "false" and the service will not be called again.
+At this moment, the circuit is open, it will stay "OPEN" for 30 seconds (time_out_open), and then it will change the state to "HALF_OPEN" at this moment, you can try to call the service again, and if it fails, it will be "OPEN" for more 30 seconds.
 
 What happens if the first four attempts fail and the fifth is succeeded?
 Then, the counter will be reset.
 
 What is the setting "time_window" for?
 Each failure is stored on Redis and has an expiration date. 
-If the first failure happened exaclty at 12:00:10 and the "time_window" is 30 seconds, so, after 12:00:40 this failure will not be counted in the total of failures considered to open the circuit.
+If the first failure happened exactly at 12:00:10 and the "time_window" is 30 seconds after 12:00:40 this failure will not be counted in the total of failures considered to open the circuit.
 In short, to open the circuit, you must have X (total_failures) in an interval of Y (time_window) seconds.
 
 ## Security
 
-If you discover any security related issues, please email anhaia.gabriel@gmail.com instead of using the issue tracker.
+If you discover any security-related issues, please email ga.contact.me@gmail.com instead of using the issue tracker.
 
 ## Credits
 
