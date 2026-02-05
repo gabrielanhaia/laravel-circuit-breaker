@@ -1,135 +1,217 @@
 # Laravel Circuit Breaker
 
-[![Build Status](https://travis-ci.com/gabrielanhaia/php-circuit-breaker.svg?branch=master)](https://travis-ci.com/gabrielanhaia/php-circuit-breaker)
-![Code Coverage](https://img.shields.io/badge/coverage-100%25-green)
-![Licence](https://img.shields.io/badge/licence-MIT-blue)
-![Package Stars](https://img.shields.io/badge/stars-%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85-yellow)
+[![CI](https://github.com/gabrielanhaia/laravel-circuit-breaker/actions/workflows/ci.yml/badge.svg)](https://github.com/gabrielanhaia/laravel-circuit-breaker/actions)
+[![Latest Stable Version](https://img.shields.io/packagist/v/gabrielanhaia/laravel-circuit-breaker.svg)](https://packagist.org/packages/gabrielanhaia/laravel-circuit-breaker)
+[![PHP Version](https://img.shields.io/packagist/php-v/gabrielanhaia/laravel-circuit-breaker.svg)](https://packagist.org/packages/gabrielanhaia/laravel-circuit-breaker)
+[![Laravel Version](https://img.shields.io/badge/laravel-11.x%20%7C%2012.x-orange.svg)](https://packagist.org/packages/gabrielanhaia/laravel-circuit-breaker)
+[![License](https://img.shields.io/packagist/l/gabrielanhaia/laravel-circuit-breaker.svg)](LICENSE)
+[![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/gabrielanhaia)
 
-<img src="./logo.png" alt="Logo - Laravel Circuit Breaker"  width="30%" height="30%">
+<img src="./logo.png" alt="Logo - Laravel Circuit Breaker" width="30%" height="30%">
 
-Laravel Circuit Breaker was developed based on the book "Release It!: Design and Deploy Production-Ready Software (Pragmatic Programmers)", written by Michael T. Nygard.
-In this book, Michael popularized the Circuit Breaker.
-
-When we work with microservices, it is sometimes common to call these systems, and they are not available, which ends up causing problems in our application. To prevent any problem on our side, and guarantee that a service will not be called loads of times, we should use a Circuit Breaker.
-
-You can find more information about Circuit Breakers [here](https://martinfowler.com/bliki/CircuitBreaker.html).
-
-Note: This package was developed for Laravel, if you are using another Framework, then I suggest you check the following repository: [PHP Circuit Breaker by Gabriel Anhaia](https://github.com/gabrielanhaia/php-circuit-breaker)
+Laravel integration for [PHP Circuit Breaker](https://github.com/gabrielanhaia/php-circuit-breaker) v3.0 — providing multiple storage drivers, HTTP middleware, Artisan commands, and full event system integration.
 
 ## Installation
-
-You can install the package via Composer:
 
 ```bash
 composer require gabrielanhaia/laravel-circuit-breaker
 ```
 
-You can publish with:
+Publish the configuration:
 
 ```bash
-php artisan vendor:publish --provider="GabrielAnhaia\LaravelCircuitBreaker\Providers\CircuitBreakerServiceProvider"
+php artisan vendor:publish --tag=circuit-breaker-config
 ```
 
+## Configuration
 
-This is the contents of the published config file:
+The published config file (`config/circuit_breaker.php`) contains:
+
+### Storage Drivers
 
 ```php
-return [
-    'driver' => 'redis',
-    'exceptions_on' => false,
-    'time_window' => 20,
-    'time_out_open' => 30,
-    'time_out_half_open' => 20,
-    'total_failures' => 5
-];
+'default_driver' => env('CIRCUIT_BREAKER_DRIVER', 'redis'),
+
+'drivers' => [
+    'redis' => [
+        'connection' => env('CIRCUIT_BREAKER_REDIS_CONNECTION', 'default'),
+        'prefix' => 'cb:',
+    ],
+    'apcu' => ['prefix' => 'cb:'],
+    'memcached' => [
+        'connection' => env('CIRCUIT_BREAKER_MEMCACHED_CONNECTION', 'memcached'),
+        'prefix' => 'cb:',
+    ],
+    'array' => [],
+],
+```
+
+| Driver    | Best for                       | Extension required |
+|-----------|--------------------------------|--------------------|
+| redis     | Distributed systems            | ext-redis (phpredis) |
+| apcu      | Single-server, high performance| ext-apcu           |
+| memcached | Distributed caching            | ext-memcached      |
+| array     | Testing / development          | none               |
+
+> **Note:** The Redis driver requires the **phpredis** extension. Predis is not supported.
+
+### Default Settings
+
+```php
+'defaults' => [
+    'failure_threshold' => 5,    // Failures needed to open circuit
+    'success_threshold' => 1,    // Successes needed to close from half-open
+    'time_window' => 20,         // Time window for counting failures (seconds)
+    'open_timeout' => 30,        // How long circuit stays open (seconds)
+    'half_open_timeout' => 20,   // How long circuit stays half-open (seconds)
+    'exceptions_enabled' => false,// Throw exception instead of returning false
+],
+```
+
+### Per-Service Overrides
+
+Override defaults for specific services:
+
+```php
+'services' => [
+    'payment-api' => [
+        'failure_threshold' => 3,
+        'open_timeout' => 60,
+    ],
+    'email-service' => [
+        'failure_threshold' => 10,
+    ],
+],
 ```
 
 ## Usage
 
-There are two ways of using the CircuitBreaker. You can use direct the object `GabrielAnhaia\PhpCircuitBreaker\CircuitBreaker`. It can be injected automatically by the DI (dependency injection); it is not necessary to register it.
-
-The second option is calling the Facade inside your classes using the class `GabrielAnhaia\LaravelCircuitBreaker\CircuitBreakerFacade`.
-
-After you have decided the way you will use it, you can call three methods:
-
-1. Validating if the circuit is open:
+### Via Facade
 
 ```php
-if ($circuitBreaker->canPass($serviceName) !== true) {
-    return;
+use GabrielAnhaia\LaravelCircuitBreaker\Facades\CircuitBreaker;
+
+if (CircuitBreaker::canPass('payment-api')) {
+    try {
+        $response = Http::post('https://payment-api.example.com/charge', $data);
+        CircuitBreaker::recordSuccess('payment-api');
+    } catch (\Throwable $e) {
+        CircuitBreaker::recordFailure('payment-api');
+    }
+} else {
+    // Circuit is open — use fallback
 }
 ```
 
-You can use the function **canPass** in any way you want. It will always return *true* when the Circuit is **CLOSED** or **HALF_OPEN**.
-After that, you should call your service, and depending on the response, you can call the following methods to update the circuit control variables.
-
-2. If Success:
-```php
-$circuitBreaker->succeed($serviceName);
-```
-
-3. If failure:
-```php
-$circuitBreaker->failed($serviceName);
-```
-
-With these three simple methods, you can control the flow of your application in execution time. 
-
-## Settings
-
-If you want you can change the default settings in `config/circuit_breaker.php`.
+### Via Dependency Injection
 
 ```php
-$settings = [
-    'exceptions_on' => false, // Define if exceptions will be thrown when the circuit is open.
-    'time_window' => 20, // Time window in which errors accumulate (Are being accounted for in total).
-    'time_out_open' => 30, // Time window that the circuit will be opened (If opened).
-    'time_out_half_open' => 20, // Time out that the circuit will be half-open.
-    'total_failures' => 5 // Number of failures necessary to open the circuit.
-];
+use GabrielAnhaia\LaravelCircuitBreaker\CircuitBreakerManager;
+
+class PaymentService
+{
+    public function __construct(
+        private readonly CircuitBreakerManager $circuitBreaker,
+    ) {}
+
+    public function charge(array $data): mixed
+    {
+        if (!$this->circuitBreaker->canPass('payment-api')) {
+            return $this->fallback();
+        }
+
+        // ... call service, then recordSuccess or recordFailure
+    }
+}
 ```
 
-*Note: It is not necessary to define these settings (they are the default values); they will be defined automatically.*
+### HTTP Middleware
 
-## Additional Information
-
-Let's say that you are using the following settings:
+Protect routes automatically:
 
 ```php
-$settings = [
-    'exceptions_on' => false, // Define if exceptions will be thrown when the circuit is open.
-    'time_window' => 20, // Time window in which errors accumulate (Are being accounted for in total).
-    'time_out_open' => 30, // Time window that the circuit will be opened (If opened).
-    'time_out_half_open' => 60, // Time out that the circuit will be half-open.
-    'total_failures' => 5 // Number of failures necessary to open the circuit.
-];
+Route::middleware('circuit-breaker:payment-api')
+    ->post('/charge', [PaymentController::class, 'charge']);
 ```
 
-One of your services is a Payment Gateway, and you try to call it in an interval of each 2 seconds for some reason.
-The first time you call the Gateway, it responds with a 200 (HTTP status code), and after you call the method "succeed" with a service identifier (You can create one for each service).
+The middleware will:
+- Return **503 Service Unavailable** if the circuit is open
+- Call `recordSuccess()` on 2xx/3xx/4xx responses
+- Call `recordFailure()` on 5xx responses
 
-On the second, third, fourth, fifth, and sixth calls, the Gateway is unavailable, so you call the method "failed" again.
+### Artisan Commands
 
-The total number of failers was 5, now The next time you call the method "canPass" it will return "false" and the service will not be called again.
-At this moment, the circuit is open, it will stay "OPEN" for 30 seconds (time_out_open), and then it will change the state to "HALF_OPEN" at this moment, you can try to call the service again, and if it fails, it will be "OPEN" for more 30 seconds.
+```bash
+# Show current state
+php artisan circuit-breaker:status payment-api
 
-What happens if the first four attempts fail and the fifth is succeeded?
-Then, the counter will be reset.
+# Force state override (for maintenance/testing)
+php artisan circuit-breaker:force payment-api open
+php artisan circuit-breaker:force payment-api closed --ttl=300
 
-What is the setting "time_window" for?
-Each failure is stored on Redis and has an expiration date. 
-If the first failure happened exactly at 12:00:10 and the "time_window" is 30 seconds after 12:00:40 this failure will not be counted in the total of failures considered to open the circuit.
-In short, to open the circuit, you must have X (total_failures) in an interval of Y (time_window) seconds.
+# Clear a manual override
+php artisan circuit-breaker:clear payment-api
+```
 
-## Security
+## Events
 
-If you discover any security-related issues, please email ga.contact.me@gmail.com instead of using the issue tracker.
+All circuit breaker events are dispatched through Laravel's event system. Register listeners in your `EventServiceProvider` or use closures:
 
-## Credits
+```php
+use GabrielAnhaia\PhpCircuitBreaker\Event\CircuitOpenedEvent;
+use GabrielAnhaia\PhpCircuitBreaker\Event\CircuitClosedEvent;
+use GabrielAnhaia\PhpCircuitBreaker\Event\FailureRecordedEvent;
+use GabrielAnhaia\PhpCircuitBreaker\Event\SuccessRecordedEvent;
 
-- [Gabriel Anhaia](https://github.com/gabrielanhaia)
-- [All Contributors](../../contributors)
+// In a service provider or listener
+Event::listen(CircuitOpenedEvent::class, function (CircuitOpenedEvent $event) {
+    Log::warning("Circuit opened for {$event->getServiceName()}");
+});
+```
+
+Available events:
+- `CircuitOpenedEvent` — circuit transitioned to OPEN
+- `CircuitClosedEvent` — circuit transitioned to CLOSED
+- `CircuitHalfOpenEvent` — circuit transitioned to HALF_OPEN
+- `FailureRecordedEvent` — a failure was recorded
+- `SuccessRecordedEvent` — a success was recorded
+
+## Manual Override
+
+Force a circuit state for maintenance or testing:
+
+```php
+use GabrielAnhaia\PhpCircuitBreaker\CircuitState;
+
+// Force open (block all requests)
+CircuitBreaker::forceState('payment-api', CircuitState::OPEN);
+
+// Force open with TTL (auto-expires after 5 minutes)
+CircuitBreaker::forceState('payment-api', CircuitState::OPEN, ttl: 300);
+
+// Clear override (return to normal state logic)
+CircuitBreaker::clearOverride('payment-api');
+```
+
+## Upgrade from v1
+
+See the [Upgrade Guide](UPGRADE-2.0.md) for migration instructions.
+
+## Development
+
+```bash
+composer test       # Run tests
+composer phpstan    # Static analysis (level max)
+composer cs-check   # Code style check
+composer cs-fix     # Auto-fix code style
+```
+
+## Support
+
+If you find this package useful, consider supporting it:
+
+[![Buy me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/gabrielanhaia)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). See [LICENSE](LICENSE) for details.

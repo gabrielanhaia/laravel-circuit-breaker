@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.2'
+            laravel: '11.*'
+            testbench: '9.*'
+          - php: '8.3'
+            laravel: '11.*'
+            testbench: '9.*'
+          - php: '8.4'
+            laravel: '11.*'
+            testbench: '9.*'
+          - php: '8.2'
+            laravel: '12.*'
+            testbench: '10.*'
+          - php: '8.3'
+            laravel: '12.*'
+            testbench: '10.*'
+          - php: '8.4'
+            laravel: '12.*'
+            testbench: '10.*'
+
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: redis
+          coverage: ${{ (matrix.php == '8.3' && matrix.laravel == '12.*') && 'xdebug' || 'none' }}
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --prefer-dist --no-interaction
+
+      - name: Run tests
+        run: vendor/bin/phpunit ${{ (matrix.php == '8.3' && matrix.laravel == '12.*') && '--coverage-clover=coverage.xml' || '' }}
+
+      - name: Upload coverage
+        if: matrix.php == '8.3' && matrix.laravel == '12.*'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    name: PHPStan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=512M
+
+  code-style:
+    runs-on: ubuntu-latest
+    name: Code Style
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Run PHP CS Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff

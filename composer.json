@@ -1,37 +1,70 @@
 {
     "name": "gabrielanhaia/laravel-circuit-breaker",
-    "description": "Circuit breaker for microservices developed in PHP and Laravel Framework",
+    "description": "Laravel integration for PHP Circuit Breaker — multiple storage drivers, middleware, Artisan commands, and event system",
     "type": "library",
-    "keywords": ["laravel", "micro-services", "circuit-breaker", "api"],
-    "require": {
-        "gabrielanhaia/php-circuit-breaker": "^1.0",
-        "illuminate/support": "^5.6|^6.0|^7.0|^8.0"
-    },
     "license": "MIT",
+    "keywords": [
+        "laravel",
+        "circuit-breaker",
+        "microservices",
+        "resilience",
+        "fault-tolerance"
+    ],
     "authors": [
         {
             "name": "Gabriel Anhaia",
             "email": "anhaia.gabriel@gmail.com"
         }
     ],
+    "homepage": "https://github.com/gabrielanhaia/laravel-circuit-breaker",
+    "require": {
+        "php": "^8.2",
+        "gabrielanhaia/php-circuit-breaker": "^3.0",
+        "illuminate/contracts": "^11.0||^12.0",
+        "illuminate/support": "^11.0||^12.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.40",
+        "larastan/larastan": "^2.9||^3.0",
+        "mockery/mockery": "^1.5",
+        "orchestra/testbench": "^9.0||^10.0",
+        "phpstan/phpstan": "^1.10||^2.0",
+        "phpunit/phpunit": "^11.5||^12.0"
+    },
+    "suggest": {
+        "ext-redis": "Required for the Redis storage driver (phpredis)",
+        "ext-apcu": "Required for the APCu storage driver",
+        "ext-memcached": "Required for the Memcached storage driver"
+    },
     "autoload": {
         "psr-4": {
             "GabrielAnhaia\\LaravelCircuitBreaker\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "GabrielAnhaia\\LaravelCircuitBreaker\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
-                "GabrielAnhaia\\LaravelCircuitBreaker\\Providers\\CircuitBreakerServiceProvider"
+                "GabrielAnhaia\\LaravelCircuitBreaker\\CircuitBreakerServiceProvider"
             ],
             "aliases": {
-                "CircuitBreaker": "GabrielAnhaia\\LaravelCircuitBreaker\\CircuitBreakerFacade"
+                "CircuitBreaker": "GabrielAnhaia\\LaravelCircuitBreaker\\Facades\\CircuitBreaker"
             }
         }
     },
+    "scripts": {
+        "test": "phpunit",
+        "phpstan": "phpstan analyse",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "config": {
         "sort-packages": true
-    },
-    "minimum-stability": "dev"
-
+    }
 }
