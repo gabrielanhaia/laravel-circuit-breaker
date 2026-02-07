@@ -354,7 +354,7 @@ composer cs-fix      # Auto-fix code style
 
 If you find this package useful, consider supporting it:
 
-<a href="https://www.buymeacoffee.com/gabrielanhaia" target="_blank">
+<a href="https://www.buymeacoffee.com/anhaia" target="_blank">
   <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy me a coffee">
 </a>
 
